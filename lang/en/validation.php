@@ -152,6 +152,8 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'phone_number_invalid' => 'The receiver phone number format is invalid.',
+        'code_not_match' => 'The verification code is not match.'
     ],
 
     /*
