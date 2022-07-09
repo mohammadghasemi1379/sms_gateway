@@ -43,7 +43,11 @@ steps:
 3. now you can go to .env and change the `SMS_GATEWAY` to anything you choose.  
    just this. :)
 
-# installation:
+## APIs Doc
+you can see APIs doc last changes here:
+* [APIs Doc](https://documenter.getpostman.com/view/9203813/UzJPMap8)
+
+## installation:
 1. got to project directory
 2. At first, you need to copy `.env.example` file to `.env`.
 3. Then run
