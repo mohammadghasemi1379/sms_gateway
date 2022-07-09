@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\LogSmsController;
+use App\Http\Controllers\SendSmsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +17,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::name('sms.')
+    ->middleware('auth:sanctum')
+    ->prefix('sms')
+    ->group(function () {
+        Route::post('send', [SendSmsController::class, 'sendSmsWithDefaultGetaway'])->name('send-sms-with-default-getaway');
+        Route::get('logs/summery', [LogSmsController::class, 'authSummeryReport'])->name('summery');
+        Route::get('logs/history', [LogSmsController::class, 'authHistoryReport'])->name('history');
+    });
+
+Route::get('test/getaway', fn() => response()->json(['status' => 'success', 'message' => 'This is for test.']))->name('test.getaway');
