@@ -6,16 +6,15 @@ use App\Http\Controllers\SendSmsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+Route::name('auth.')
+    ->prefix('auth')
+    ->group(function () {
+        Route::post('login', [AuthController::class, 'loginOrSignUp'])->name('login-or-sign-up');
+        Route::post('verify/token', [AuthController::class, 'verifyToken'])->name('verify-code');
+        Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:sanctum');
+        Route::get('user', [AuthController::class, 'getCurrentUser'])->middleware('auth:sanctum');
+        Route::put('update', [AuthController::class, 'updateUserData'])->middleware('auth:sanctum');
+    });
 
 Route::name('sms.')
     ->middleware('auth:sanctum')
