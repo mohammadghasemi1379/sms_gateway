@@ -37,9 +37,9 @@ return [
         'receiver_label' => 'RecNumber',
         'sender_phone_number' => '5000299559686',
         'options' => [
-            'Username' => 'adilar',
-            'Password' => '4976342',
-            'PhoneNumber' => '5000299559686',
+            'Username' => 'xxx',
+            'Password' => 'xxx',
+            'PhoneNumber' => 'xxx',
             'Smsclsss' => '1'
         ],
         'headers' => [
