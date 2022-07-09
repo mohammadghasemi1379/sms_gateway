@@ -1,0 +1,84 @@
+version: "3.9"
+x-container-config: &configs
+    build:
+        context: .
+        dockerfile: Dockerfile
+    depends_on:
+        - sms_gateway
+        - sms_gateway_rabbitmq
+        - sms_gateway_mariadb
+    volumes:
+        - sms_gateway:/var/www
+    networks:
+        - sms_gateway_default
+    restart: always
+
+services:
+    sms_gateway:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        depends_on:
+            - sms_gateway_rabbitmq
+            - sms_gateway_mariadb
+        volumes:
+            - sms_gateway:/var/www/
+        networks:
+            - sms_gateway_default
+        hostname: sms_gateway
+
+    sms_gateway_mariadb:
+        image: mariadb:latest
+        networks:
+            - sms_gateway_default
+        volumes:
+            - ./mariadb:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=P@ssWord
+            - MYSQL_PASSWORD=P@ssWord
+            - MYSQL_USER=sms_gateway
+            - MYSQL_DATABASE=sms_gateway
+
+    sms_gateway_rabbitmq:
+        build: ./Rabbitmq
+        restart: always
+        privileged: true
+        volumes:
+            - ./Rabbitmq/data:/var/lib/rabbitmq/mnesia
+            - ./Rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+            - ./Rabbitmq/management_agent.disable_metrics_collector.conf:/etc/rabbitmq/conf.d/management_agent.disable_metrics_collector.conf
+        networks:
+            - sms_gateway_default
+
+    sms_gateway_server:
+        image: nginx:alpine
+        restart: always
+        ports:
+            - "8000:80"
+        links:
+            - sms_gateway
+        volumes:
+            - sms_gateway:/var/www
+            - ./default.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - sms_gateway_default
+        depends_on:
+            - sms_gateway
+
+
+    sms_gateway_queue:
+        <<: *configs
+        hostname: sms_gateway_queue
+
+#    sms_gateway_crontab:
+#        <<: *configs
+#        hostname: crontab
+
+volumes:
+    sms_gateway:
+        name: sms_gateway_queue
+
+networks:
+    sms_gateway_default:
+        driver: bridge
