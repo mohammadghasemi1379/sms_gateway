@@ -18,16 +18,18 @@ class SendSmsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private SendSmsRepository $sendSmsRepository;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
     public function __construct(
-        public SmsLog             $smsLog,
-        private SendSmsRepository $sendSmsRepository
+        public SmsLog $smsLog,
     )
     {
+        $this->sendSmsRepository = new SendSmsRepository();
     }
 
     /**
@@ -39,10 +41,21 @@ class SendSmsJob implements ShouldQueue
     {
         $method = Config::get('sms_gateways.' . $this->smsLog->sender_getaway . '.method');
 
+        $request_body = Config::get('sms_gateways.' . $this->smsLog->sender_getaway . '.options') + [
+                Config::get('sms_gateways.' . $this->smsLog->sender_getaway . '.message_label') => $this->smsLog->message,
+                Config::get('sms_gateways.' . $this->smsLog->sender_getaway . '.receiver_label') => $this->smsLog->receiver_number,
+            ];
+
+        if (Config::has('sms_gateways.' . $this->smsLog->sender_getaway . '.sender_phone_number')){
+            $request_body + [
+                Config::has('sms_gateways.' . $this->smsLog->sender_getaway . '.sender_phone_number')
+            ];
+        }
+
         $send_sms_to_getaway = Http::withHeaders(Config::get('sms_gateways.' . $this->smsLog->sender_getaway . '.headers'))
             ->$method(
                 Config::get('sms_gateways.' . $this->smsLog->sender_getaway . '.api_url'),
-                Config::get('sms_gateways.' . $this->smsLog->sender_getaway . '.options')
+                $request_body
             );
 
         $this->sendSmsRepository->updateLogWithStatus(
